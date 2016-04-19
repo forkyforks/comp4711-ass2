@@ -53,7 +53,7 @@ class Stocks extends MY_Model {
 	function register() {
 
 		// $this->rest->initialize(array('server' => 'http://www.comp4711bsx.local/'));
-		$this->rest->initialize(array('server' => 'http://bsx.jlparry.com/'));
+		$this->rest->initialize(array('server' => BSX));
 
 		
 		// Playing a little joke on George..
@@ -78,7 +78,7 @@ class Stocks extends MY_Model {
 		$stocks = $this->Stocks->all();
 		
 		// $this->rest->initialize(array('server' => 'http://www.comp4711bsx.local/'));
-		$this->rest->initialize(array('server' => 'http://bsx.jlparry.com/'));
+		$this->rest->initialize(array('server' => BSX));
 		
 		// Buy parameters
 		$params = array(
