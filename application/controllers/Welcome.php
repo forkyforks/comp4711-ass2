@@ -27,13 +27,14 @@ class Welcome extends CI_Controller {
             $this->load->library('form_validation');
             
             $this->form_validation->set_rules('username', 'Username', 'required');
-            $this->form_validation->set_rules('password', 'Password', 'required');
+            $this->form_validation->set_rules('password', 'Password', 'required|callback_verify_password');
 
             if ($this->form_validation->run() == FALSE && !isset($this->session->userdata['logged_on']))
             {
                     echo form_open('welcome');
-					$this->data['validation'] = validation_errors();
+                    $this->data['validation'] = validation_errors();
                     $this->parser->parse('_logonform', $this->data);
+                    
             }
             else
                 {
@@ -48,9 +49,39 @@ class Welcome extends CI_Controller {
                 $this->data['stocksList'] = $this->getStocks();
                 $this->data['playersList'] = $this->getPlayers();
 
-                $this->parser->parse('homepage', $this->data);
+                $session_info = $this->session->userdata('login_info');
+                
+                if($session_info['role']=='admin'){
+//-----------------TODO: different homepage for admin-----------------------------------
+                    $this->parser->parse('homepage', $this->data);
+                }else{
+                    $this->parser->parse('homepage', $this->data);
+                }
                 }
 	}
+        
+        public function verify_password($password){
+            
+            $username = $this->input->post('username');
+            
+            $result = $this->players->login($username, $password);
+            if($result){
+                $sess_array = array();
+                foreach($result as $row){
+                    $sess_array = array(
+                    'id'    => 1,
+                    'name' => $username,
+                    'isloggedin'=> 1,
+                    'role'=>$row->role
+                    );
+                    $this->session->set_userdata('login_info', $sess_array);
+                }
+                return TRUE;
+            }
+            else{
+                return false;
+            }            
+        }
         
         public function logout() {
             $this->session->unset_userdata('logged_on');
@@ -64,8 +95,9 @@ class Welcome extends CI_Controller {
 		$result = $this->stocks->all();
 		
 		// Build array of formatted cells
-		foreach ($result as $myrow)
+		foreach ($result as $myrow){
 			$cells[] = $this->parser->parse('_stocksCell', (array) $myrow, true);
+                }
 			
 		// prime the table class
 		$this->load->library('table');
